@@ -15,49 +15,27 @@ Python 3.11+ required.
 ```powershell
 cd jholokjatra
 python -m venv .venv
-.\.venv\Scripts\Activate.ps1        # if blocked: Set-ExecutionPolicy -Scope CurrentUser RemoteSigned
+.\.venv\Scripts\Activate.ps1        
 python -m pip install --upgrade pip
 pip install -r requirements-dev.txt
 copy .env.example .env
 ```
 
-**WSL / Linux / macOS**
-```bash
-cd jholokjatra
-python3 -m venv .venv
-source .venv/bin/activate
-pip install --upgrade pip
-pip install -r requirements-dev.txt
-cp .env.example .env
-```
-
-Optional extras: `pip install -r requirements-ui.txt` (Streamlit + maps). ChromaDB is off by default (`USE_CHROMA=false`) because it downloads an ~80 MB embedding model on first use; tips use SQLite keyword search instead.
-
 ## 2. API keys (both free, both optional)
-
-The app works with **no keys** (deterministic template narrative). Keys only upgrade the narrative and free-text parsing.
 
 | Provider | Get a key | Put in `.env` |
 |---|---|---|
 | Groq | https://console.groq.com/keys → Create API Key | `GROQ_API_KEY=gsk_...` |
-| Gemini | https://aistudio.google.com/apikey → Create API key | `GEMINI_API_KEY=...` |
-
-Rules: never commit `.env` (it is in `.gitignore`), no quotes or spaces around the value, restart the server after editing.
-Check them: `python -m scripts.check_keys`.
-Default Groq models are `openai/gpt-oss-20b` (small tier) and `openai/gpt-oss-120b` (large tier). These are reasoning models, so the code gives them extra token headroom and sets `GROQ_REASONING_EFFORT=low`. Model names change; if a call returns 404, update `GROQ_MODEL_*` in `.env` from Groq's model list.
-
-Groq-only setup: `LLM_PROVIDER_ORDER=groq` (the default in `.env.example`).
-
-Optional local model: install Ollama, `ollama pull qwen2.5:7b`, set `OLLAMA_ENABLED=true`.
+.
 
 ## 3. First run
 
 ```bash
-python -m scripts.smoke_test_apis      # confirms every public API is reachable from your network
-pytest -q                              # 33 offline tests (mocked internet, no keys needed)
+python -m scripts.smoke_test_apis      
+pytest -q                               
 uvicorn app.main:app --reload --port 8010 
-$env:API_URL = "http://localhost:8010"        # API docs at http://localhost:8000/docs
-streamlit run ui/app.py                # UI at http://localhost:8501
+$env:API_URL = "http://localhost:8010"        
+streamlit run ui/app.py                
 ```
 
 Try it:
@@ -95,16 +73,4 @@ OpenStreetMap Overpass (hospitals etc.), Wikivoyage (tips, CC BY-SA). All free; 
 - **Safety veto**: if the safety agent says avoid and weather says go, the final verdict is avoid, and the conflict is reported.
 - **Never silently risky**: if no day is a clear "go", the plan pauses for your approval.
 
-## 7. Honest limitations
 
-- Thresholds in `scoring.py` are heuristic comfort/safety rules, **not official warnings**. Follow BMD and local authorities.
-- Flood score is a heuristic on GloFAS discharge (rise vs. the window minimum), not a calibrated flood forecast.
-- Marine forecast covers about 7 days; sea trips beyond that are capped at "caution".
-- GDACS response parsing is defensive but unverified against live data from this build; run the smoke test.
-- `evals/fixtures/events.json` expectations are from memory of real events; verify and edit them. The backtest scores observed conditions, not forecast skill.
-- Single-process SQLite cache: fine for a demo; use Postgres/Redis before running multiple replicas.
-
-## 8. Next ideas
-
-Aladhan prayer times, sunrise/sunset for photo timing, Frankfurter currency for foreign visitors, Eid/hartal calendar,
-Phoenix/Langfuse OpenTelemetry export, a `/compare` endpoint ranking destinations for the same dates.
