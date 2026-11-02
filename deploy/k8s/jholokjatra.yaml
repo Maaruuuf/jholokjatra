@@ -1,0 +1,33 @@
+# Local cluster with kind:
+#   kind create cluster --name jj
+#   docker build -t jholokjatra:dev . && kind load docker-image jholokjatra:dev --name jj
+#   kubectl create secret generic jj-keys --from-literal=GROQ_API_KEY=... --from-literal=GEMINI_API_KEY=...
+#   kubectl apply -f deploy/k8s/jholokjatra.yaml && kubectl port-forward svc/jholokjatra 8000:8000
+apiVersion: apps/v1
+kind: Deployment
+metadata: {name: jholokjatra}
+spec:
+  replicas: 1   # SQLite cache is per-pod; use Postgres/Redis before scaling past 1
+  selector: {matchLabels: {app: jholokjatra}}
+  template:
+    metadata: {labels: {app: jholokjatra}}
+    spec:
+      containers:
+        - name: api
+          image: jholokjatra:dev
+          imagePullPolicy: IfNotPresent
+          ports: [{containerPort: 8000}]
+          envFrom: [{secretRef: {name: jj-keys, optional: true}}]
+          env: [{name: DATA_DIR, value: /srv/data}]
+          readinessProbe: {httpGet: {path: /health, port: 8000}, initialDelaySeconds: 5}
+          livenessProbe: {httpGet: {path: /health, port: 8000}, initialDelaySeconds: 15}
+          resources: {requests: {cpu: 100m, memory: 192Mi}, limits: {memory: 512Mi}}
+          volumeMounts: [{name: data, mountPath: /srv/data}]
+      volumes: [{name: data, emptyDir: {}}]
+---
+apiVersion: v1
+kind: Service
+metadata: {name: jholokjatra}
+spec:
+  selector: {app: jholokjatra}
+  ports: [{port: 8000, targetPort: 8000}]

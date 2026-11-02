@@ -1,0 +1,33 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+env/
+
+# Secrets - NEVER commit
+.env
+.env.*
+!.env.example
+
+# Local data (SQLite cache, Chroma index, eval outputs)
+data/
+*.db
+*.db-wal
+*.db-shm
+evals/reports/*
+!evals/reports/.gitkeep
+
+# Tooling caches
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+htmlcov/
+.coverage
+
+# Editors / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

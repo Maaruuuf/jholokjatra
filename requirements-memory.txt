@@ -1,0 +1,2 @@
+# Optional: semantic vector recall for travel tips (stage 4). Heavy install.
+chromadb>=0.5

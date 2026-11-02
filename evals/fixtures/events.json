@@ -1,0 +1,13 @@
+{
+  "_note": "Expectations come from the author's recollection of real events and are starting points, not ground truth. Verify dates against GDACS/BMD/news, then edit. severity: min_verdict = at least this bad; max_verdict = no worse than this.",
+  "events": [
+    {"id": "remal-sundarbans", "destination": "sundarbans", "start": "2024-05-26", "end": "2024-05-27",
+     "description": "Cyclone Remal landfall near Mongla/Khepupara coast", "min_verdict": "caution"},
+    {"id": "remal-kuakata", "destination": "kuakata", "start": "2024-05-26", "end": "2024-05-27",
+     "description": "Cyclone Remal, Kuakata coast", "min_verdict": "avoid"},
+    {"id": "sylhet-flood-2024", "destination": "ratargul", "start": "2024-06-18", "end": "2024-06-20",
+     "description": "Severe Sylhet-region flooding, June 2024", "min_verdict": "caution"},
+    {"id": "control-cox-winter", "destination": "coxs_bazar", "start": "2024-02-10", "end": "2024-02-12",
+     "description": "Calm dry-season control: should NOT be flagged avoid", "max_verdict": "caution"}
+  ]
+}

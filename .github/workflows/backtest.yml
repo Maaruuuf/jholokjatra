@@ -1,0 +1,17 @@
+name: backtest
+# Needs internet to Open-Meteo/GDACS. Run manually or weekly; fails if the hit rate drops below 75%.
+on:
+  workflow_dispatch:
+  schedule: [{cron: "0 3 * * 1"}]
+jobs:
+  backtest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.11", cache: pip}
+      - run: pip install -r requirements.txt
+      - run: python -m evals.backtest --min-hit-rate 0.75
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with: {name: backtest-report, path: evals/reports/backtest.md}

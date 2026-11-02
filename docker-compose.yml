@@ -1,0 +1,27 @@
+services:
+  api:
+    build: .
+    env_file: .env
+    environment:
+      DATA_DIR: /srv/data
+    ports: ["8000:8000"]
+    volumes: ["jj-data:/srv/data"]
+  ui:
+    image: python:3.11-slim
+    working_dir: /srv
+    command: sh -c "pip install -q -r requirements-ui.txt && streamlit run ui/app.py --server.port 8501 --server.address 0.0.0.0"
+    environment:
+      API_URL: http://api:8000
+    ports: ["8501:8501"]
+    volumes: ["./ui:/srv/ui:ro", "./requirements-ui.txt:/srv/requirements-ui.txt:ro"]
+    depends_on: [api]
+  # Optional local LLM:  docker compose --profile local up   then: docker compose exec ollama ollama pull qwen2.5:7b
+  # and set OLLAMA_ENABLED=true OLLAMA_HOST=http://ollama:11434 in .env
+  ollama:
+    image: ollama/ollama
+    profiles: ["local"]
+    ports: ["11434:11434"]
+    volumes: ["ollama:/root/.ollama"]
+volumes:
+  jj-data:
+  ollama:
